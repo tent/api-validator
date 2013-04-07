@@ -1,4 +1,4 @@
-# ApiValidator
+# ApiValidator [![Build Status](https://travis-ci.org/tent/api-validator.png)](https://travis-ci.org/tent/api-validator)
 
 Framework for integration testing an API server.
 
