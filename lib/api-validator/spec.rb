@@ -141,7 +141,9 @@ module ApiValidator
       end
 
       results = self.expectations.inject([]) do |memo, expectation|
-        memo << expectation.run
+        result = expectation.run
+        memo << result if result
+        memo
       end
 
       self.validations.inject(Results.new(self, results)) do |memo, validation|
