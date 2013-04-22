@@ -16,4 +16,11 @@ module ApiValidator
   require 'api-validator/response_expectation'
   require 'api-validator/spec'
 
+  ##
+  # Format validators
+  # Map of format-uri => proc { |value| true || false }
+  def self.format_validators
+    @format_validators ||= Hash.new
+  end
+
 end
