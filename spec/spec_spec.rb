@@ -193,4 +193,88 @@ describe ApiValidator::Spec do
       end
     end
   end
+
+  describe "dependencies" do
+    before do
+      described_class.validations.delete_if { true }
+    end
+
+    let(:dependency_1) { described_class.describe("first foo", :name => :foo) }
+    let(:instance) { described_class.describe("single foo", :depends_on => :foo) }
+
+    context "when single dependency" do
+      it "knows it's dependency" do
+        expect(instance.dependencies).to eql([:foo])
+      end
+
+      it "gets sorted to run after dependency" do
+        instance
+        dependency_1
+
+        described_class.sort_validations!
+
+        expect(dependency_index = described_class.validations.index(dependency_1)).to_not be_nil
+        expect(instance_index = described_class.validations.index(instance)).to_not be_nil
+        expect(instance_index > dependency_index).to be_true, "expected index (#{instance_index}) to be grater than that of dependency (#{dependency_index})"
+      end
+    end
+
+    context "when multiple dependencies" do
+      let(:dependency_2) { described_class.describe("bar baz", :name => :baz) }
+      let(:instance) { described_class.describe("single foo", :depends_on => [:foo, :baz]) }
+
+      it "knows it's dependencies" do
+        expect(instance.dependencies).to eql([:foo, :baz])
+      end
+
+      it "gets sorted to run after dependencies" do
+        instance
+        dependency_2
+        dependency_1
+
+        described_class.sort_validations!
+
+        expect(dependency_1_index = described_class.validations.index(dependency_1)).to_not be_nil
+        expect(dependency_2_index = described_class.validations.index(dependency_2)).to_not be_nil
+        expect(instance_index = described_class.validations.index(instance)).to_not be_nil
+        expect(instance_index > dependency_1_index).to be_true, "expected index (#{instance_index}) to be grater than that of first dependency (#{dependency_1_index})"
+        expect(instance_index > dependency_2_index).to be_true, "expected index (#{instance_index}) to be grater than that of second dependency (#{dependency_2_index})"
+      end
+
+      it "doesn't alter the natural order for everything else" do
+        other_1 = described_class.describe("other 1")
+        other_2 = described_class.describe("other 2")
+        instance
+        other_3 = described_class.describe("other 3")
+        dependency_1
+        other_4 = described_class.describe("other 4")
+        dependency_2
+        other_5 = described_class.describe("other 5")
+
+        described_class.sort_validations!
+
+        expect(described_class.validations.map { |v| v.name }).to eql([other_1.name, other_2.name, other_3.name, dependency_1.name, dependency_2.name, instance.name, other_4.name, other_5.name])
+      end
+
+      it "sorts before running" do
+        instance
+        dependency_2
+        dependency_1
+
+        described_class.run
+        expect(described_class.validations.map { |v| v.name }).to eql([dependency_2.name, dependency_1.name, instance.name])
+      end
+
+      it "sorts nested validations before running" do
+        instance
+        nested_1 = instance.describe("nested one")
+        nested_2 = instance.context("nested two", :depends_on => :nested_foo)
+        nested_3 = instance.context("nested three", :name => :nested_foo)
+
+        instance.run
+
+        expect(instance.validations.map { |v| v.name }).to eql([nested_1.name, nested_3.name, nested_2.name])
+      end
+    end
+  end
 end

@@ -22,6 +22,18 @@ module ApiValidator
         @validations ||= []
       end
 
+      def sort_validations!
+        @validations = validations.sort do |a, b|
+          if a.dependencies.include?(b.dependency_name)
+            1
+          elsif b.dependencies.include?(a.dependency_name)
+            -1
+          else
+            validations.index(a) <=> validations.index(b)
+          end
+        end
+      end
+
       def describe(name, options = {}, &block)
         validation = self.new(name, options.merge(:parent => self), &block)
         self.validations << validation
@@ -36,17 +48,21 @@ module ApiValidator
     include SharedClassAndInstanceMethods
 
     def self.run
+      sort_validations!
       validations.inject(Results.new(self.new(''), [])) do |memo, validation|
         results = validation.run
         memo.merge!(results)
       end
     end
 
-    attr_reader :parent, :name, :pending
+    attr_reader :parent, :name, :pending, :dependency_name, :dependencies
     def initialize(name, options = {}, &block)
       @parent = options.delete(:parent)
       @parent = nil if @parent == self.class
       @name = name
+
+      @dependency_name = options.delete(:name)
+      @dependencies = Array(options.delete(:depends_on))
 
       initialize_before_hooks(options.delete(:before))
 
@@ -130,6 +146,8 @@ module ApiValidator
     end
 
     def run
+      sort_validations!
+
       before_hooks.each do |hook|
         if hook.respond_to?(:receiver) && hook.receiver == self
           # It's a method
