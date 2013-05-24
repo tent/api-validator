@@ -36,9 +36,9 @@ module ApiValidator
       return true unless format = assertion.format
       if format == 'uri'
         uri = URI(actual)
-        uri.scheme && uri.host
+        !!(uri.scheme && uri.host)
       elsif format_validator = format_validators[format]
-        format_validator.call(actual)
+        !!(format_validator.call(actual))
       end
     rescue URI::InvalidURIError, ArgumentError
       false

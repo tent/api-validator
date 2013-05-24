@@ -108,7 +108,7 @@ module ApiValidator
           :type => assertion.type,
           :message => wrong_type_message(assertion.type, schema_type(actual))
         })
-      elsif !assertion_format_valid?(assertion, actual)
+      elsif assertion_format_valid?(assertion, actual) == false
         yield({
           :op => "replace",
           :path => path,
