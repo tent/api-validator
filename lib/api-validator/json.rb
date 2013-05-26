@@ -22,9 +22,13 @@ module ApiValidator
           initialize_assertions(val, item_path)
         end
       when Array
-        expected.each_with_index do |val, index|
-          item_path = [path, index].join("/")
-          initialize_assertions(val, item_path)
+        if expected.any?
+          expected.each_with_index do |val, index|
+            item_path = [path, index].join("/")
+            initialize_assertions(val, item_path)
+          end
+        else
+          assertions << Assertion.new(path, expected)
         end
       else
         assertions << Assertion.new(path, expected)
