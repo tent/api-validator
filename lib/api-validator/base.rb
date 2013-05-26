@@ -22,6 +22,11 @@ module ApiValidator
 
     def assertion_valid?(assertion, actual)
       value = assertion.value
+
+      if assertion.type == :length
+        return actual.respond_to?(:length) && value == actual.length
+      end
+
       case value
       when Regexp
         value.match(actual.to_s)
