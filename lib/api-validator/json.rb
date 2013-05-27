@@ -17,9 +17,13 @@ module ApiValidator
     def initialize_assertions(expected, path = "")
       case expected
       when Hash
-        expected.each_pair do |key, val|
-          item_path = [path, key].join("/")
-          initialize_assertions(val, item_path)
+        if expected.keys.any?
+          expected.each_pair do |key, val|
+            item_path = [path, key].join("/")
+            initialize_assertions(val, item_path)
+          end
+        else
+          assertions << Assertion.new(path, expected)
         end
       when Array
         if expected.any?
