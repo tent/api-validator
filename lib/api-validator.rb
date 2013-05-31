@@ -9,6 +9,7 @@ module ApiValidator
   require 'api-validator/json_schemas'
   require 'api-validator/json_schema'
   require 'api-validator/json'
+  require 'api-validator/absent'
   require 'api-validator/length'
   require 'api-validator/header'
   require 'api-validator/status'

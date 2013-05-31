@@ -30,6 +30,10 @@ module ApiValidator
       @json_validators ||= []
     end
 
+    def absent_validators
+      @absent_validators ||= []
+    end
+
     def length_validators
       @length_validators ||= []
     end
@@ -47,11 +51,15 @@ module ApiValidator
     end
 
     def expectations
-      [status_validator].compact + header_validators + schema_validators + json_validators + length_validators
+      [status_validator].compact + header_validators + schema_validators + json_validators + absent_validators + length_validators
     end
 
     def expect_properties(properties)
       json_validators << ApiValidator::Json.new(properties)
+    end
+
+    def expect_properties_absent(*paths)
+      absent_validators << ApiValidator::Absent.new(*paths)
     end
 
     def expect_property_length(path, length)
