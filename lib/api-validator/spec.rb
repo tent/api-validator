@@ -40,6 +40,41 @@ module ApiValidator
         validation
       end
       alias context describe
+
+      def cache
+        @cache ||= Hash.new
+      end
+
+      def get(path)
+        if Symbol === path
+          path = "/#{path}"
+        end
+
+        pointer = JsonPointer.new(cache, path, :symbolize_keys => true)
+        unless pointer.exists?
+          return parent ? parent.get(path) : nil
+        end
+        val = pointer.value
+        Proc === val ? val.call : val
+      end
+
+      def set(path, val=nil, &block)
+        if Symbol === path
+          path = "/#{path}"
+        end
+
+        pointer = JsonPointer.new(cache, path, :symbolize_keys => true)
+        pointer.value = block_given? ? block : val
+        val
+      end
+
+      def setup_blocks
+        @setup_blocks ||= []
+      end
+
+      def setup(&block)
+        setup_blocks << block
+      end
     end
 
     class << self
@@ -47,7 +82,13 @@ module ApiValidator
     end
     include SharedClassAndInstanceMethods
 
+    def self.parent; end
+
     def self.run
+      setup_blocks.each do |block|
+        block.call
+      end
+
       sort_validations!
       validations.inject(Results.new(self.new(''), [])) do |memo, validation|
         results = validation.run
@@ -58,7 +99,6 @@ module ApiValidator
     attr_reader :parent, :name, :pending, :dependency_name, :dependencies
     def initialize(name, options = {}, &block)
       @parent = options.delete(:parent)
-      @parent = nil if @parent == self.class
       @name = name
 
       @dependency_name = options.delete(:name)
@@ -118,37 +158,10 @@ module ApiValidator
       expectation
     end
 
-    def cache
-      @cache ||= Hash.new
-    end
-
-    def get(path)
-      if Symbol === path
-        path = "/#{path}"
-      end
-
-      pointer = JsonPointer.new(cache, path, :symbolize_keys => true)
-      unless pointer.exists?
-        return parent ? parent.get(path) : nil
-      end
-      val = pointer.value
-      Proc === val ? val.call : val
-    end
-
-    def set(path, val=nil, &block)
-      if Symbol === path
-        path = "/#{path}"
-      end
-
-      pointer = JsonPointer.new(cache, path, :symbolize_keys => true)
-      pointer.value = block_given? ? block : val
-      val
-    end
-
     def run
       sort_validations!
 
-      before_hooks.each do |hook|
+      setup_blocks.concat(before_hooks).each do |hook|
         if hook.respond_to?(:receiver) && hook.receiver == self
           # It's a method
           hook.call

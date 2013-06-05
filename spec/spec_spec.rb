@@ -10,14 +10,14 @@ describe ApiValidator::Spec do
     describe ".describe" do
       it_behaves_like "a validation declaration" do
         let(:method_name) { :describe }
-        let(:parent) { nil }
+        let(:parent) { described_class }
       end
     end
 
     describe ".context" do
       it_behaves_like "a validation declaration" do
         let(:method_name) { :describe }
-        let(:parent) { nil }
+        let(:parent) { described_class }
       end
     end
 
