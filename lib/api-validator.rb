@@ -14,6 +14,7 @@ module ApiValidator
   require 'api-validator/length'
   require 'api-validator/header'
   require 'api-validator/status'
+  require 'api-validator/body'
 
   require 'api-validator/response_expectation'
   require 'api-validator/spec'

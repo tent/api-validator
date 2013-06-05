@@ -3,7 +3,7 @@ module ApiValidator
 
     require 'api-validator/response_expectation/results'
 
-    attr_accessor :status_validator
+    attr_accessor :status_validator, :body_validator
     def initialize(validator, options = {}, &block)
       @validator, @block = validator, block
       initialize_headers(options.delete(:headers))
@@ -55,7 +55,11 @@ module ApiValidator
     end
 
     def expectations
-      [status_validator].compact + header_validators + schema_validators + json_validators + absent_validators + present_validators + length_validators
+      [status_validator, body_validator].compact + header_validators + schema_validators + json_validators + absent_validators + present_validators + length_validators
+    end
+
+    def expect_body(body)
+      self.body_validator = ApiValidator::Body.new(body)
     end
 
     def expect_properties(properties)
