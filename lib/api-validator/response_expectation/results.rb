@@ -23,7 +23,7 @@ module ApiValidator
           :actual => {
             :request_headers => response.env[:request_headers],
             :request_body => response.env[:request_body],
-            :request_path => response.env[:url].path,
+            :request_path => response.env[:url] ? response.env[:url].path : nil,
             :request_params => parse_params(response.env[:url]),
             :request_url => response.env[:url].to_s,
             :request_method => response.env[:method].to_s.upcase,
@@ -38,7 +38,7 @@ module ApiValidator
       private
 
       def parse_params(uri)
-        return unless uri.query
+        return unless uri && uri.query
         uri.query.split('&').inject({}) do |params, part|
           key, value = part.split('=')
           params[key] = value

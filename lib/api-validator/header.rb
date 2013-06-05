@@ -11,7 +11,7 @@ module ApiValidator
 
     def validate(response)
       compiled_assertions = compile_assertions(response)
-      response_headers = response.env[:response_headers]
+      response_headers = response.env[:response_headers] || {}
       _failed_assertions = failed_assertions(compiled_assertions, response_headers)
       super.merge(
         :assertions => compiled_assertions.map(&:to_hash),
