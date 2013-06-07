@@ -45,17 +45,17 @@ module ApiValidator
         @cache ||= Hash.new
       end
 
-      def get(path)
+      def get(path, context=self)
         if Symbol === path
           path = "/#{path}"
         end
 
         pointer = JsonPointer.new(cache, path, :symbolize_keys => true)
         unless pointer.exists?
-          return parent ? parent.get(path) : nil
+          return parent ? parent.get(path, context) : nil
         end
         val = pointer.value
-        Proc === val ? val.call : val
+        Proc === val ? context.instance_eval(&val) : val
       end
 
       def set(path, val=nil, &block)
