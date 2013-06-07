@@ -34,6 +34,8 @@ module ApiValidator
         else
           assertions << Assertion.new(path, expected)
         end
+      when ResponseExpectation::PropertyAbsent
+        assertions << Assertion.new(path, nil, :type => :absent)
       else
         assertions << Assertion.new(path, expected)
       end
@@ -42,7 +44,11 @@ module ApiValidator
     def failed_assertions(actual)
       assertions.select do |assertion|
         pointer = JsonPointer.new(actual, assertion.path)
-        !pointer.exists? || !assertion_valid?(assertion, pointer.value)
+        if assertion.type.to_s == "absent"
+          pointer.exists?
+        else
+          !pointer.exists? || !assertion_valid?(assertion, pointer.value)
+        end
       end
     end
 
@@ -50,11 +56,17 @@ module ApiValidator
       _failed_assertions.map do |assertion|
         pointer = JsonPointer.new(actual, assertion.path)
         assertion = assertion.to_hash
-        if pointer.exists?
-          assertion[:op] = "replace"
+        if assertion[:type].to_s == "absent"
+          assertion.delete(:type)
+          assertion[:op] = "remove"
           assertion[:current_value] = pointer.value
         else
-          assertion[:op] = "add"
+          if pointer.exists?
+            assertion[:op] = "replace"
+            assertion[:current_value] = pointer.value
+          else
+            assertion[:op] = "add"
+          end
         end
         assertion
       end

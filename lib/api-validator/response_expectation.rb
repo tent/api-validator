@@ -1,6 +1,9 @@
 module ApiValidator
   class ResponseExpectation
 
+    class PropertyAbsent
+    end
+
     require 'api-validator/response_expectation/results'
 
     attr_accessor :status_validator, :body_validator
@@ -24,6 +27,10 @@ module ApiValidator
     def initialize_schema(expected_schema)
       return unless expected_schema
       schema_validators << ApiValidator::JsonSchema.new(expected_schema)
+    end
+
+    def property_absent
+      PropertyAbsent.new
     end
 
     def json_validators
