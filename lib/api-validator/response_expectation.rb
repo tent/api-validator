@@ -33,6 +33,10 @@ module ApiValidator
       PropertyAbsent.new
     end
 
+    def unordered_list(list)
+      UnorderedList.new(list)
+    end
+
     def json_validators
       @json_validators ||= []
     end

@@ -26,4 +26,28 @@ module ApiValidator
     @format_validators ||= Hash.new
   end
 
+  class UnorderedList
+    def initialize(list)
+      @list = list
+    end
+
+    def ==(other_list)
+      p [@list.sort, other_list.sort, @list.sort == other_list.sort]
+      @list.sort == other_list.sort
+    end
+
+    def inspect
+      @list.inspect
+    end
+
+    def respond_to_missing?(method)
+      @list.respond_to?(method)
+    end
+
+    def method_missing(method, *args, &block)
+      return super unless respond_to_missing?(method)
+      @list.send(method, *args, &block)
+    end
+  end
+
 end

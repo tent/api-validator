@@ -43,7 +43,11 @@ describe ApiValidator::Json do
             :quantity => 256,
             :ingredients => [["Dates", { :quantity => 4, :units => "cups" }], ["Almonds", { :quantity => 10, :units => "cups" }]]
           }
-        ]
+        ],
+        :places => ApiValidator::UnorderedList.new([
+          { :name => "Earth" },
+          { :name => "Never Land" }
+        ])
       }
     end
 
@@ -69,6 +73,8 @@ describe ApiValidator::Json do
         { :op => "test", :path => "/snacks/3/ingredients/1/0", :value => "Almonds" },
         { :op => "test", :path => "/snacks/3/ingredients/1/1/quantity", :value => 10 },
         { :op => "test", :path => "/snacks/3/ingredients/1/1/units", :value => "cups" },
+        { :op => "test", :path => "/places/~/name", :value => "Earth" },
+        { :op => "test", :path => "/places/~/name", :value => "Never Land" }
       ]
     end
 
@@ -106,6 +112,10 @@ describe ApiValidator::Json do
               "quantity" => 256,
               "ingredients" => [["Dates", { "quantity" => 4, "units" => "cups" }], ["Almonds", { "quantity" => 10, "units" => "cups" }]]
             }
+          ],
+          "places" => [
+            { "name" => "Earth" },
+            { "name" => "Never Land" }
           ]
         }
       end
@@ -163,6 +173,10 @@ describe ApiValidator::Json do
               "quantity" => 256,
               "ingredients" => [["Dates", { "quantity" => 4, "units" => "cups" }], ["Almonds", { "quantity" => 10, "units" => "cups" }]]
             }
+          ],
+          "places" => [
+            { "name" => "Never Land" },
+            { "name" => "Earth" }
           ]
         }
       end

@@ -27,13 +27,17 @@ module ApiValidator
         return actual.respond_to?(:length) && value == actual.length
       end
 
-      case value
+      assert_equal(value, actual)
+    end
+
+    def assert_equal(expected, actual)
+      case expected
       when Regexp
-        value.match(actual.to_s)
+        expected.match(actual.to_s)
       when Numeric
-        (Numeric === actual) && (value == actual)
+        (Numeric === actual) && (expected == actual)
       else
-        value == actual
+        expected == actual
       end
     end
 
