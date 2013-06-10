@@ -10,12 +10,7 @@ module ApiValidator
       end
 
       def as_json(options = {})
-        res = results.inject(Hash.new) do |memo, result|
-          result = result.dup
-          deep_merge!((memo[result.delete(:key)] ||= Hash.new), result)
-          memo
-        end
-
+        res = merge_keys(results)
         merge_diffs!(res)
 
         {
@@ -37,12 +32,21 @@ module ApiValidator
 
       private
 
+      # TODO: handle multiple params of same name
       def parse_params(uri)
         return unless uri && uri.query
         uri.query.split('&').inject({}) do |params, part|
           key, value = part.split('=')
           params[key] = value
           params
+        end
+      end
+
+      def merge_keys(results)
+        results.inject(Hash.new) do |memo, result|
+          result = result.dup
+          deep_merge!((memo[result.delete(:key)] ||= Hash.new), result)
+          memo
         end
       end
 
