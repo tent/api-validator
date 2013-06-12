@@ -113,12 +113,12 @@ module ApiValidator
       expectations.map { |expectation| expectation.validate(response) }
     end
 
-    def respond_to_method_missing?(method)
+    def respond_to_missing?(method)
       @validator.respond_to?(method)
     end
 
     def method_missing(method, *args, &block)
-      if respond_to_method_missing?(method)
+      if respond_to_missing?(method)
         @validator.send(method, *args, &block)
       else
         super
