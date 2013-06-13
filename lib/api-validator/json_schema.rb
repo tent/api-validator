@@ -6,7 +6,7 @@ module ApiValidator
     SchemaNotFoundError = Class.new(StandardError)
 
     attr_reader :root_path
-    def initialize(expected, root_path = nil)
+    def initialize(expected, root_path = nil, options = {})
       @expected, @root_path = expected, root_path
 
       if Hash === expected
@@ -18,6 +18,8 @@ module ApiValidator
       end
 
       @schema = schema
+
+      @required_key = (options.delete(:required_key) || "required").to_s
 
       initialize_assertions(schema)
     end
@@ -37,7 +39,7 @@ module ApiValidator
     def initialize_assertions(schema, parent_path = "")
       parent_path = root_path if root_path && parent_path == ""
       (schema["properties"] || {}).each_pair do |key, val|
-        next unless val["required"] == true
+        next unless val[@required_key] == true
         path = [parent_path, key].join("/")
         assertions << Assertion.new(path, nil, :type => val["type"])
         if val["type"] == "object"

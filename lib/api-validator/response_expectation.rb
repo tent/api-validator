@@ -89,8 +89,8 @@ module ApiValidator
       length_validators << ApiValidator::Length.new(path, length)
     end
 
-    def expect_schema(expected_schema, path=nil)
-      schema_validators << ApiValidator::JsonSchema.new(expected_schema, path)
+    def expect_schema(expected_schema, path=nil, options = {})
+      schema_validators << ApiValidator::JsonSchema.new(expected_schema, path, options)
     end
 
     def expect_headers(expected_headers)
