@@ -19,7 +19,7 @@ module ApiValidator
       when Hash
         if expected.keys.any?
           expected.each_pair do |key, val|
-            item_path = [path, key].join("/")
+            item_path = [path, JsonPointer.escape_fragment(key.to_s)].join("/")
             initialize_assertions(val, item_path, assertion_options.dup)
           end
         else
