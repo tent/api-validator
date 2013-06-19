@@ -102,10 +102,20 @@ module ApiValidator
       type_uri
     end
 
+    def after_hooks
+      @after_hooks ||= []
+    end
+
+    def after(&block)
+      after_hooks << block
+    end
+
     def run
       return unless @block
       response = instance_eval(&@block)
-      Results.new(response, validate(response))
+      results = validate(response)
+      after_hooks.each { |hook| hook.call(response, results) }
+      Results.new(response, results)
     end
 
     def validate(response)
