@@ -114,7 +114,7 @@ module ApiValidator
       return unless @block
       response = instance_eval(&@block)
       results = validate(response)
-      after_hooks.each { |hook| hook.call(response, results) }
+      after_hooks.each { |hook| hook.call(response, results, @validator) }
       Results.new(response, results)
     end
 
