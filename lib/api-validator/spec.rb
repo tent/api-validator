@@ -96,6 +96,10 @@ module ApiValidator
       end
     end
 
+    def self.full_name
+      name.split('::').last
+    end
+
     attr_reader :parent, :name, :pending, :dependency_name, :dependencies
     def initialize(name, options = {}, &block)
       @parent = options.delete(:parent)
@@ -111,6 +115,10 @@ module ApiValidator
       else
         @pending = true
       end
+    end
+
+    def full_name
+      parent ? parent.full_name + " " + name : name
     end
 
     def initialize_before_hooks(hooks)
