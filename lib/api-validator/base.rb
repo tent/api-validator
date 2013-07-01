@@ -18,6 +18,19 @@ module ApiValidator
       }
     end
 
+    def read_response_body(response)
+      body = response.body
+      if body.respond_to?(:read)
+        _body = body.read
+        body.rewind if body.respond_to?(:rewind)
+        _body
+      elsif body.respond_to?(:to_hash)
+        body.to_hash
+      else
+        body
+      end
+    end
+
     private
 
     def assertion_valid?(assertion, actual)

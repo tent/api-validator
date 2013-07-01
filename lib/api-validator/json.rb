@@ -2,7 +2,7 @@ module ApiValidator
   class Json < Base
 
     def validate(response)
-      response_body = response.body.respond_to?(:to_hash) ? response.body.to_hash : response.body
+      response_body = read_response_body(response)
       _failed_assertions = failed_assertions(response_body)
       super.merge(
         :key => :response_body,
