@@ -4,6 +4,16 @@ module ApiValidator
     class PropertyAbsent
     end
 
+    class PropertyNotEqual
+      def initialize(value)
+        @value = value
+      end
+
+      def ==(other)
+        other != @value
+      end
+    end
+
     require 'api-validator/response_expectation/results'
 
     attr_accessor :status_validator, :body_validator
@@ -27,6 +37,10 @@ module ApiValidator
     def initialize_schema(expected_schema)
       return unless expected_schema
       schema_validators << ApiValidator::JsonSchema.new(expected_schema)
+    end
+
+    def not_equal(value)
+      PropertyNotEqual.new(value)
     end
 
     def property_absent

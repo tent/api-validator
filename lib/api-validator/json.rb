@@ -44,6 +44,8 @@ module ApiValidator
         end
       when ResponseExpectation::PropertyAbsent
         assertions << Assertion.new(path, nil, assertion_options.dup.merge(:type => :absent))
+      when ResponseExpectation::PropertyNotEqual
+        assertions << Assertion.new(path, expected, assertion_options.dup.merge(:type => :not_equal))
       else
         assertions << Assertion.new(path, expected, assertion_options)
       end
@@ -58,6 +60,8 @@ module ApiValidator
         when "unordered_list"
           next true unless pointer.exists?
           !pointer.value.any? { |v| assert_equal(assertion.value, v) }
+        when "not_equal"
+          pointer.exists? && !assertion_valid?(assertion, pointer.value)
         else
           !pointer.exists? || !assertion_valid?(assertion, pointer.value)
         end
