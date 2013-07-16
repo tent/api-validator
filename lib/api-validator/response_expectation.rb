@@ -12,6 +12,10 @@ module ApiValidator
       def ==(other)
         other != @value
       end
+
+      def inspect
+        @value.inspect
+      end
     end
 
     require 'api-validator/response_expectation/results'
