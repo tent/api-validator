@@ -146,7 +146,7 @@ module ApiValidator
       when "boolean"
         (TrueClass === actual) || (FalseClass === actual)
       when "integer"
-        Fixnum === actual
+        (Fixnum === actual) || (Bignum === actual)
       when "number"
         Numeric === actual
       when "null"
